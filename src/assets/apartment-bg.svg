@@ -1,0 +1,47 @@
+<svg width="100%" height="100%" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="grid" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
+      <path d="M 80 0 L 0 0 0 80" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="100%" height="100%" fill="url(#gradient)" />
+  <rect width="100%" height="100%" fill="url(#grid)" />
+  
+  <!-- Simplified apartment buildings in the background -->
+  <g opacity="0.2">
+    <!-- Building 1 -->
+    <rect x="100" y="300" width="120" height="500" fill="white" />
+    <rect x="110" y="320" width="20" height="30" fill="#0f172a" />
+    <rect x="145" y="320" width="20" height="30" fill="#0f172a" />
+    <rect x="180" y="320" width="20" height="30" fill="#0f172a" />
+    <rect x="110" y="370" width="20" height="30" fill="#0f172a" />
+    <rect x="145" y="370" width="20" height="30" fill="#0f172a" />
+    <rect x="180" y="370" width="20" height="30" fill="#0f172a" />
+    
+    <!-- Building 2 -->
+    <rect x="250" y="200" width="150" height="600" fill="white" />
+    <rect x="270" y="220" width="25" height="40" fill="#0f172a" />
+    <rect x="315" y="220" width="25" height="40" fill="#0f172a" />
+    <rect x="360" y="220" width="25" height="40" fill="#0f172a" />
+    <rect x="270" y="280" width="25" height="40" fill="#0f172a" />
+    <rect x="315" y="280" width="25" height="40" fill="#0f172a" />
+    <rect x="360" y="280" width="25" height="40" fill="#0f172a" />
+    
+    <!-- Building 3 -->
+    <rect x="450" y="350" width="100" height="450" fill="white" />
+    <rect x="460" y="370" width="18" height="25" fill="#0f172a" />
+    <rect x="492" y="370" width="18" height="25" fill="#0f172a" />
+    <rect x="522" y="370" width="18" height="25" fill="#0f172a" />
+    
+    <!-- Building 4 -->
+    <rect x="600" y="250" width="130" height="550" fill="white" />
+    <rect x="615" y="270" width="22" height="35" fill="#0f172a" />
+    <rect x="655" y="270" width="22" height="35" fill="#0f172a" />
+    <rect x="695" y="270" width="22" height="35" fill="#0f172a" />
+  </g>
+</svg> 
