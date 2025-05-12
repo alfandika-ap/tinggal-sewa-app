@@ -1,14 +1,16 @@
 import Cookies from "js-cookie";
 
+export const TOKEN_KEY = "ts-token";
+
 const TokenService = {
   getToken: () => {
-    return Cookies.get("token");
+    return Cookies.get(TOKEN_KEY);
   },
   setToken: (token: string) => {
-    Cookies.set("token", token);
+    Cookies.set(TOKEN_KEY, token);
   },
   removeToken: () => {
-    Cookies.remove("token");
+    Cookies.remove(TOKEN_KEY);
   },
 };
 

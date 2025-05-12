@@ -25,6 +25,21 @@ axiosInstance.interceptors.response.use(
   }
 );
 
+// Add request interceptor to add authorization token
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = TokenService.getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+
 const api = axiosInstance
 
 export default api;

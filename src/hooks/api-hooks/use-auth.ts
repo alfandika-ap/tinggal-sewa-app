@@ -18,7 +18,7 @@ const login = async (username: string, password: string) => {
     
     // Update auth store
     useAuthStore.getState().setAuth(data.customer);
-  }45
+  }
   
   return data;
 };
@@ -44,7 +44,7 @@ const register = async (registerData: RegisterRequest) => {
     const response = await api.post<Customer>("/customer/register", registerData);
     return response.data;
   } catch (error) {
-    throw error; // Re-throw the error for proper handling
+    throw error;
   }
 };
 

@@ -1,12 +1,16 @@
-import { Button } from "@/components/ui/button";
 import { TinggalSewaMascot } from "@/components/tinggal-sewa-mascot";
+import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useResetChatHistory } from "@/hooks/api-hooks/use-chat";
 import { Trash2 } from "lucide-react";
+import { useCallback } from "react";
+export default function ChatHeader() {
+  const { mutate: resetChatHistory, isLoading: isResetting } = useResetChatHistory();
 
-export default function ChatsHeader() {
-  const handleClearConversation = () => {
-    console.log("Clearing conversation");
-  };
+
+  const handleClearConversation = useCallback(() => {
+    resetChatHistory();
+  }, [resetChatHistory]);
 
   return (
     <div className="border-b p-3 px-4 flex items-center justify-between bg-gradient-to-r from-primary/5 to-transparent">
@@ -24,10 +28,11 @@ export default function ChatsHeader() {
             variant="outline" 
             size="sm" 
             onClick={handleClearConversation}
-            className="text-xs gap-1 border-primary/20 hover:bg-primary/10 hover:text-primary"
+            disabled={isResetting}
+            className="text-xs gap-1 border-primary/20 hover:bg-primary/10 hover:text-primary cursor-pointer"
           >
             <Trash2 className="w-3.5 h-3.5" />
-            Reset Percakapan
+            {isResetting ? "Memulai ulang..." : "Mulai Ulang Percakapan"}
           </Button>
         </TooltipTrigger>
         <TooltipContent>
