@@ -8,7 +8,7 @@ import type { Customer, LoginResponse, RegisterRequest } from "@/types/customer"
 
 // Login
 const login = async (username: string, password: string) => {
-  const response = await api.post("/api/customer/login", { username, password });
+  const response = await api.post("/customer/login", { username, password });
   const data = response.data as LoginResponse;
   
   // Store token and customer data
@@ -42,7 +42,7 @@ const useLogin = () => {
 const register = async (registerData: RegisterRequest) => {
   try {
     console.log("Sending registration request with data:", registerData);
-    const response = await api.post<LoginResponse>("/api/customer/register", registerData);
+    const response = await api.post<LoginResponse>("/customer/register", registerData);
     console.log("Registration response:", response);
     const data = response.data;
     
@@ -101,7 +101,7 @@ const useLogout = () => {
 const updateProfile = async (profileData: Partial<Customer>) => {
   try {
     console.log("Sending profile update request with data:", profileData);
-    const response = await api.put<Customer>("/api/customer/profile", profileData);
+    const response = await api.put<Customer>("/customer/profile", profileData);
     console.log("Profile update response:", response);
     
     // Store the updated customer data

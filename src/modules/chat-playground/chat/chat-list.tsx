@@ -68,7 +68,7 @@ export default function ChatList() {
               isLastBotMessage && "animate-pulse"
             )}
           >
-            {message.content ? <Markdown remarkPlugins={[remarkGfm]}>{message.content}</Markdown> : (isLastBotMessage && 
+            {message.content ? <Markdown remarkPlugins={[remarkGfm]}>{Array.isArray(message.content) ? message.content.join(' ') : message.content}</Markdown> : (isLastBotMessage && 
               <div className="flex items-center gap-2">
                 <div className="h-2 w-2 rounded-full bg-current animate-bounce" />
                 <div className="h-2 w-2 rounded-full bg-current animate-bounce [animation-delay:0.2s]" />
