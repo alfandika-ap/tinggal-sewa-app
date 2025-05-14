@@ -2,13 +2,27 @@
 
 import { Camera, Loader2 } from "lucide-react"
 import * as React from "react"
-import * as z from "zod"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import { toast } from "sonner"
+import useAuthStore from "@/store/auth-store"
+import { useUpdateProfile } from "@/hooks/api-hooks/use-auth"
+import CustomerService from "@/services/customer-service"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
 
 const profileFormSchema = z.object({
   fullname: z
@@ -26,7 +40,8 @@ const profileFormSchema = z.object({
   password: z
     .string()
     .min(8, { message: "Password minimal 8 karakter." })
-    .optional(),
+    .optional()
+    .or(z.literal("")),
 })
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>
@@ -34,24 +49,81 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>
 interface ProfileFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function ProfileForm({ className, ...props }: ProfileFormProps) {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
-  const [avatar, setAvatar] = React.useState<string>("https://scontent.fsub8-2.fna.fbcdn.net/v/t1.6435-9/57504316_1090054981198458_2262218480927375360_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeHS2Q7voFwfFgP_uNPSGTgCvepTxr8aJEa96lPGvxokRsUuFSalCfw6WMOStMrgAwkS8PJlp6EVUyt3QGjf_r7E&_nc_ohc=iDEqJ24gc3QQ7kNvwHYSP7v&_nc_oc=AdkfMa_1tK13wzQvY-cmDVjoTDBtFU-9BhgWDnuzy6WXawozv3v9TlGirqfYsSMxr5g&_nc_zt=23&_nc_ht=scontent.fsub8-2.fna&_nc_gid=dqhZYjC8CIBp7SBcMNi4AQ&oh=00_AfK-0kx3uh8DZcqNlF8Tku1HThLxp07-PoKCmkt7atnKrg&oe=684825B7")
+  const customer = useAuthStore((state) => state.customer)
+  const setAuth = useAuthStore((state) => state.setAuth)
+  const { mutate: updateProfile, isLoading } = useUpdateProfile()
+  const [avatar, setAvatar] = React.useState<string>(`https://eu.ui-avatars.com/api/?name=${customer?.fullname}&size=50`)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
-  const defaultValues: Partial<ProfileFormValues> = {
-    fullname: "John Doe",
-    username: "johndoe",
-    email: "johndoe@example.com",
-  }
+  const form = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileFormSchema),
+    defaultValues: {
+      fullname: customer?.fullname || "",
+      username: customer?.username || "",
+      email: customer?.email || "",
+      password: "",
+    },
+  })
 
-  async function onSubmit(event: React.SyntheticEvent) {
-    event.preventDefault()
-    setIsLoading(true)
+  function onSubmit(data: ProfileFormValues) {
+    toast.dismiss()
+    
+    // Only include password if it's not empty
+    const updateData = {
+      fullname: data.fullname,
+      username: data.username,
+      email: data.email,
+      ...(data.password && data.password.trim() !== "" ? { password: data.password } : {}),
+    }
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 2000)
+    console.log("Submitting profile update with data:", updateData);
+
+    updateProfile(updateData, {
+      onSuccess: (updatedCustomer) => {
+        console.log("Profile update successful:", updatedCustomer);
+        // Update both the auth store and customer service
+        setAuth(updatedCustomer);
+        CustomerService.setCustomer(updatedCustomer);
+        
+        toast.success("Profil berhasil diperbarui");
+        // Reset form with updated data
+        form.reset({ 
+          fullname: updatedCustomer.fullname,
+          username: updatedCustomer.username,
+          email: updatedCustomer.email,
+          password: "" 
+        });
+      },
+      onError: (error: any) => {
+        console.error("Profile update error:", error);
+        const errorData = error?.response?.data
+        
+        if (errorData && typeof errorData === 'object') {
+          const hasValidationErrors = Object.keys(errorData).some(key => 
+            Array.isArray(errorData[key]) && errorData[key].length > 0
+          )
+          
+          if (hasValidationErrors) {
+            Object.entries(errorData).forEach(([field, messages]) => {
+              if (Array.isArray(messages) && messages.length > 0) {
+                form.setError(field as any, { 
+                  type: 'server', 
+                  message: messages[0] as string 
+                })
+              }
+            })
+            
+            toast.error("Gagal memperbarui profil, periksa form Anda")
+          } else {
+            const errorMessage = errorData?.message || errorData?.error || "Gagal memperbarui profil"
+            toast.error(errorMessage)
+          }
+        } else {
+          const errorMessage = error?.message || "Terjadi kesalahan saat memperbarui profil"
+          toast.error(errorMessage)
+        }
+      }
+    })
   }
 
   const handleAvatarClick = () => {
@@ -70,15 +142,15 @@ export function ProfileForm({ className, ...props }: ProfileFormProps) {
   }
 
   return (
-    <div className={cn("grid gap-6", className)} {...props}>
-      <div className="flex items-center gap-4">
+    <div className={cn("grid gap-8", className)} {...props}>
+      <div className="flex flex-col items-center gap-4 text-center">
         <div className="relative">
-          <Avatar className="h-20 w-20 cursor-pointer" onClick={handleAvatarClick}>
+          <Avatar className="h-24 w-24 cursor-pointer transition-transform hover:scale-105" onClick={handleAvatarClick}>
             <AvatarImage src={avatar} alt="Profile" />
-            <AvatarFallback>JD</AvatarFallback>
+            <AvatarFallback className="text-lg">{customer?.fullname?.charAt(0)}</AvatarFallback>
           </Avatar>
           <div
-            className="absolute bottom-0 right-0 p-1 bg-primary rounded-full cursor-pointer shadow-sm"
+            className="absolute bottom-0 right-0 p-1.5 bg-primary rounded-full cursor-pointer shadow-sm hover:bg-primary/90 transition-colors"
             onClick={handleAvatarClick}
           >
             <Camera className="h-4 w-4 text-white" />
@@ -99,58 +171,99 @@ export function ProfileForm({ className, ...props }: ProfileFormProps) {
         </div>
       </div>
 
-      <form onSubmit={onSubmit}>
-        <div className="grid gap-4 max-w-md">
-          <div className="grid gap-2">
-            <Label htmlFor="fullname">Nama Lengkap</Label>
-            <Input
-              id="fullname"
-              placeholder="Masukkan nama lengkap Anda"
-              type="text"
-              autoCapitalize="words"
-              defaultValue={defaultValues.fullname}
-              disabled={isLoading}
-              required
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="fullname"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nama Lengkap</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Masukkan nama lengkap Anda"
+                      autoCapitalize="words"
+                      disabled={isLoading}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Masukkan username Anda"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      disabled={isLoading}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="username">Username</Label>
-            <Input
-              id="username"
-              placeholder="Masukkan username Anda"
-              type="text"
-              autoCapitalize="none"
-              autoCorrect="off"
-              defaultValue={defaultValues.username}
-              disabled={isLoading}
-              required
+
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Masukkan email Anda"
+                    type="email"
+                    autoCapitalize="none"
+                    autoComplete="email"
+                    autoCorrect="off"
+                    disabled={isLoading}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold">Ubah Password</h3>
+              <p className="text-sm text-muted-foreground">
+                Biarkan kosong jika tidak ingin mengubah password
+              </p>
+            </div>
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password Baru</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="••••••••"
+                      type="password"
+                      autoComplete="new-password"
+                      disabled={isLoading}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              placeholder="Masukkan email Anda"
-              type="email"
-              autoCapitalize="none"
-              autoComplete="email"
-              autoCorrect="off"
-              defaultValue={defaultValues.email}
-              disabled={isLoading}
-              required
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password">Password Baru</Label>
-            <Input
-              id="password"
-              placeholder="••••••••"
-              type="password"
-              autoComplete="new-password"
-              disabled={isLoading}
-            />
-          </div>
-          <Button className="mt-2" disabled={isLoading}>
+
+          <Button className="w-full md:w-auto" disabled={isLoading}>
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -160,8 +273,8 @@ export function ProfileForm({ className, ...props }: ProfileFormProps) {
               "Simpan Perubahan"
             )}
           </Button>
-        </div>
-      </form>
+        </form>
+      </Form>
     </div>
   )
 } 

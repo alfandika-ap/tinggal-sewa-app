@@ -4,6 +4,10 @@ import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
+if (!API_BASE_URL) {
+  console.error("VITE_API_URL is not defined in environment variables");
+}
+
 // Create axios instance with default config
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -17,6 +21,13 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
+    // Log the error for debugging
+    console.error("API Error:", {
+      status: error.response?.status,
+      data: error.response?.data,
+      config: error.config
+    });
+
     if (error.response?.status === 401) {
       // Unauthorized - token might be invalid or expired
       TokenService.removeToken();
@@ -39,7 +50,6 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-
-const api = axiosInstance
+const api = axiosInstance;
 
 export default api;

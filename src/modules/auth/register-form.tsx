@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
@@ -51,20 +52,25 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
   })
 
   function onSubmit(data: RegisterFormValues) {
-    toast.dismiss();
+    toast.dismiss()
     
     mutate(data, {
-      onSuccess: () => {
-        toast.success("Akun berhasil dibuat");
-        navigate("/");
+      onSuccess: (response) => {
+        if (response.token) {
+          toast.success("Akun berhasil dibuat")
+          navigate("/dashboard")
+        } else {
+          toast.error("Gagal membuat akun, silakan coba lagi")
+        }
       },
       onError: (error: any) => {
-        const errorData = error?.response?.data;
+        console.error("Registration error:", error)
+        const errorData = error?.response?.data
         
         if (errorData && typeof errorData === 'object') {
           const hasValidationErrors = Object.keys(errorData).some(key => 
             Array.isArray(errorData[key]) && errorData[key].length > 0
-          );
+          )
           
           if (hasValidationErrors) {
             Object.entries(errorData).forEach(([field, messages]) => {
@@ -72,23 +78,21 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
                 form.setError(field as any, { 
                   type: 'server', 
                   message: messages[0] as string 
-                });
+                })
               }
-            });
+            })
             
-            toast.error("Pendaftaran gagal, periksa form Anda");
+            toast.error("Pendaftaran gagal, periksa form Anda")
           } else {
-            // Generic error message fallback
-            const errorMessage = error?.response?.data?.message || "Gagal membuat akun";
-            toast.error(errorMessage);
+            const errorMessage = errorData?.message || errorData?.error || "Gagal membuat akun"
+            toast.error(errorMessage)
           }
         } else {
-          // Generic error message fallback
-          const errorMessage = error?.response?.data?.message || "Gagal membuat akun";
-          toast.error(errorMessage);
+          const errorMessage = error?.message || "Terjadi kesalahan saat mendaftar"
+          toast.error(errorMessage)
         }
       }
-    });
+    })
   }
 
   return (
@@ -109,7 +113,7 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
                     {...field}
                   />
                 </FormControl>
-                <FormMessage className="text-left" />
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -128,7 +132,7 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
                     {...field}
                   />
                 </FormControl>
-                <FormMessage className="text-left" />
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -149,7 +153,7 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
                     {...field}
                   />
                 </FormControl>
-                <FormMessage className="text-left" />
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -168,7 +172,7 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
                     {...field}
                   />
                 </FormControl>
-                <FormMessage className="text-left" />
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -186,7 +190,7 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
                     {...field}
                   />
                 </FormControl>
-                <FormMessage className="text-left" />
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -203,12 +207,19 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
                     {...field}
                   />
                 </FormControl>
-                <FormMessage className="text-left" />
+                <FormMessage />
               </FormItem>
             )}
           />
           <Button className="w-full" disabled={isLoading}>
-            {isLoading ? "Membuat Akun..." : "Buat Akun"}
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Membuat Akun...
+              </>
+            ) : (
+              "Buat Akun"
+            )}
           </Button>
         </form>
       </Form>
