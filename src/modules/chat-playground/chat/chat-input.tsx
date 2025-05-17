@@ -53,31 +53,33 @@ function ChatInput() {
       setMessage("");
 
       // Start streaming
-      let responseText = "";
-      await streamChat(
-        trimmedMessage,
-        (chunk) => {
-          queryClient.setQueryData<ChatItem[]>(["chatHistory"], (oldData = []) => {
-            return oldData.map((item) => {
-              if (item.id === aiMessage.id) {
-                return { ...item, content: responseText + chunk };
-              }
-              return item;
-            });
-          });
-          responseText += chunk;
-        },
-        (fullResponse) => {
-          queryClient.setQueryData<ChatItem[]>(["chatHistory"], (oldData = []) => {
-            return oldData.map((item) => {
-              if (item.id === aiMessage.id) {
-                return { ...item, content: fullResponse, id: `final-${Date.now()}` };
-              }
-              return item;
-            });
-          });
+      let fullResponse = "";
+
+await streamChat(
+  trimmedMessage,
+  (chunk) => {
+    fullResponse += chunk;
+    queryClient.setQueryData<ChatItem[]>(["chatHistory"], (oldData = []) => {
+      return oldData.map((item) => {
+        if (item.id === aiMessage.id) {
+          return { ...item, content: fullResponse };
         }
-      );
+        return item;
+      });
+    });
+  },
+  (finalResponse) => {
+    queryClient.setQueryData<ChatItem[]>(["chatHistory"], (oldData = []) => {
+      return oldData.map((item) => {
+        if (item.id === aiMessage.id) {
+          return { ...item, content: finalResponse, id: `final-${Date.now()}` };
+        }
+        return item;
+      });
+    });
+  }
+);
+
     } catch (error) {
       toast.error("Gagal mengirim pesan. Silakan coba lagi.");
       queryClient.setQueryData<ChatItem[]>(["chatHistory"], (oldData = []) => {

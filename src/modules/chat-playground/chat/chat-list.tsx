@@ -1,17 +1,16 @@
-import { Skeleton } from "@/components/ui/skeleton";
-import { useChatHistory } from "@/hooks/api-hooks/use-chat";
-import { cn } from "@/lib/utils";
-import { MessageCircle } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { Skeleton } from '@/components/ui/skeleton';
+import { useChatHistory } from '@/hooks/api-hooks/use-chat';
+import { cn } from '@/lib/utils';
+import { MessageCircle } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 export default function ChatList() {
   const { data: messages, isLoading } = useChatHistory();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   if (isLoading) {
@@ -35,12 +34,13 @@ export default function ChatList() {
         </div>
         <h3 className="text-xl font-semibold mb-2">Belum Ada Percakapan</h3>
         <p className="text-sm text-muted-foreground max-w-md mb-6">
-          Mulai percakapan dengan asisten kami untuk mencari properti yang sesuai dengan kebutuhan Anda
+          Mulai percakapan dengan asisten kami untuk mencari properti yang sesuai dengan kebutuhan
+          Anda
         </p>
         <div className="w-full max-w-md bg-muted/50 rounded-lg p-4 border border-dashed border-muted-foreground/30">
           <p className="text-sm font-medium mb-2">Contoh pertanyaan:</p>
           <ul className="text-sm text-muted-foreground space-y-1.5 text-left">
-            <li>"Cari kost dekat Universitas Indonesia"</li> 
+            <li>"Cari kost dekat Universitas Indonesia"</li>
             <li>"Apartemen 2 kamar di Jakarta Selatan"</li>
             <li>"Rumah dengan 3 kamar tidur di Bandung"</li>
           </ul>
@@ -52,28 +52,49 @@ export default function ChatList() {
   return (
     <div className="space-y-4">
       {messages.map((message, index) => {
-        const isLastBotMessage = 
-          message.role === "assistant" && 
-          message.id.includes("temp-ai-") &&
+        const isLastBotMessage =
+          message.role === 'assistant' &&
+          message.id.includes('temp-ai-') &&
           index === messages.length - 1;
-          
+
         return (
           <div
             key={message.id}
             className={cn(
-              "flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm",
-              message.role === "user"
-                ? "ml-auto bg-primary text-primary-foreground"
-                : "bg-muted",
-              isLastBotMessage && "animate-pulse"
+              'flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm',
+              message.role === 'user' ? 'ml-auto bg-primary text-primary-foreground' : 'bg-muted',
+              message.role === 'assistant' && message.id.includes('temp-ai-') && !message.content && 'animate-pulse'
             )}
           >
-            {message.content ? <Markdown remarkPlugins={[remarkGfm]}>{Array.isArray(message.content) ? message.content.join(' ') : message.content}</Markdown> : (isLastBotMessage && 
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-current animate-bounce" />
-                <div className="h-2 w-2 rounded-full bg-current animate-bounce [animation-delay:0.2s]" />
-                <div className="h-2 w-2 rounded-full bg-current animate-bounce [animation-delay:0.4s]" />
-              </div>
+            {message.content ? (
+              <Markdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  p: ({ children }) => <p className="whitespace-pre-wrap">{children}</p>,
+                  ol: ({ children }) => <ol className="list-decimal list-inside">{children}</ol>,
+                  li: ({ children }) => <li className="mb-1">{children}</li>,
+                  a: ({ children, href }) => (
+                    <a href={href} className="text-primary underline">
+                      {children}
+                    </a>
+                  ),
+                  img: ({ src, alt }) => <img src={src} alt={alt} className="" />,
+                  blockquote: ({ children }) => (
+                    <blockquote className=" whitespace-pre-wrap">{children}</blockquote>
+                  ),
+                  h1: ({ children }) => <h1 className="text-2xl font-bold ">{children}</h1>,
+                }}
+              >
+                {Array.isArray(message.content) ? message.content.join(' ') : message.content}
+              </Markdown>
+            ) : (
+              isLastBotMessage && (
+                <div className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-current animate-bounce" />
+                  <div className="h-2 w-2 rounded-full bg-current animate-bounce [animation-delay:0.2s]" />
+                  <div className="h-2 w-2 rounded-full bg-current animate-bounce [animation-delay:0.4s]" />
+                </div>
+              )
             )}
           </div>
         );
