@@ -1,4 +1,5 @@
 import api from "@/lib/api";
+import { saveParsedJson } from "@/lib/utils";
 import TokenService from "@/services/token-service";
 import type { ChatItem } from "@/types/chat";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -51,43 +52,61 @@ export const useChatStreaming = () => {
     },
   });
 
-  const streamChat = async (message: string, onChunk: (chunk: string) => void, onDone: (fullResponse: string) => void) => {
+  const streamChat = async (
+    message: string,
+    onChunk: (chunk: string) => void,
+    onDone: (fullResponse: string) => void
+  ) => {
     try {
       const response = await mutation.mutateAsync({ message });
-      
+  
       if (!response.body) {
         throw new Error('Response body is null');
       }
-      
+  
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let fullResponse = '';
       let buffer = '';
-      
+  
       const processStream = async () => {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-
+  
           buffer += decoder.decode(value, { stream: true });
           const events = buffer.split('\n\n');
           buffer = events.pop() || '';
-
+  
           for (const event of events) {
-            console.log(event, 'event');
             const lines = event.split('\n');
             for (const line of lines) {
               if (line.startsWith('data: ')) {
                 const data = line.slice(6).trim();
+  
                 if (data === '[DONE]') {
                   onDone(fullResponse);
                   return;
                 }
-
+  
                 try {
                   const parsed = JSON.parse(data);
-                  fullResponse += parsed.content;
-                  onChunk(parsed.content);
+                  if (parsed.type === 'text') {
+                    const parsedFull = saveParsedJson(fullResponse, { type: 'text', data: '' });
+                    const updatedText = parsedFull.data + parsed.data;
+                    const delta = updatedText.slice(parsedFull.data.length); // hanya bagian yang baru
+                    fullResponse = JSON.stringify({ type: 'text', data: updatedText });
+
+                    if (delta) {
+                      onChunk(`delta: ${JSON.stringify({ type: 'text', data: delta })}`);
+                    }
+                  } else if (parsed.type === 'function_result') {
+                    // bisa tampilkan hasil function call kalau kamu mau
+                    console.log("Function result:", parsed.data);
+                  } else if (parsed.type === 'done') {
+                    onDone(fullResponse);
+                    return;
+                  }
                 } catch (err) {
                   console.warn('Failed to parse stream chunk', err);
                 }
@@ -96,13 +115,12 @@ export const useChatStreaming = () => {
           }
         }
       };
-      
+  
       processStream().catch(error => {
         console.error('Error processing stream:', error);
         throw error;
       });
-      
-      // Return cleanup function
+  
       return () => {
         reader.cancel();
       };
@@ -111,6 +129,7 @@ export const useChatStreaming = () => {
       throw error;
     }
   };
+  
 
   return {
     streamChat,

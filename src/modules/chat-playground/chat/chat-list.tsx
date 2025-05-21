@@ -1,10 +1,8 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import { useChatHistory } from '@/hooks/api-hooks/use-chat';
-import { cn } from '@/lib/utils';
 import { MessageCircle } from 'lucide-react';
 import { useEffect, useRef } from 'react';
-import Markdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import ChatBubble from './chat-bubble';
 
 export default function ChatList() {
   const { data: messages, isLoading } = useChatHistory();
@@ -58,45 +56,7 @@ export default function ChatList() {
           index === messages.length - 1;
 
         return (
-          <div
-            key={message.id}
-            className={cn(
-              'flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm',
-              message.role === 'user' ? 'ml-auto bg-primary text-primary-foreground' : 'bg-muted',
-              message.role === 'assistant' && message.id.includes('temp-ai-') && !message.content && 'animate-pulse'
-            )}
-          >
-            {message.content ? (
-              <Markdown
-                remarkPlugins={[remarkGfm]}
-                components={{
-                  p: ({ children }) => <p className="whitespace-pre-wrap">{children}</p>,
-                  ol: ({ children }) => <ol className="list-decimal list-inside">{children}</ol>,
-                  li: ({ children }) => <li className="mb-1">{children}</li>,
-                  a: ({ children, href }) => (
-                    <a href={href} className="text-primary underline">
-                      {children}
-                    </a>
-                  ),
-                  img: ({ src, alt }) => <img src={src} alt={alt} className="" />,
-                  blockquote: ({ children }) => (
-                    <blockquote className=" whitespace-pre-wrap">{children}</blockquote>
-                  ),
-                  h1: ({ children }) => <h1 className="text-2xl font-bold ">{children}</h1>,
-                }}
-              >
-                {Array.isArray(message.content) ? message.content.join(' ') : message.content}
-              </Markdown>
-            ) : (
-              isLastBotMessage && (
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-current animate-bounce" />
-                  <div className="h-2 w-2 rounded-full bg-current animate-bounce [animation-delay:0.2s]" />
-                  <div className="h-2 w-2 rounded-full bg-current animate-bounce [animation-delay:0.4s]" />
-                </div>
-              )
-            )}
-          </div>
+          <ChatBubble key={message.id} chat={message} isLast={isLastBotMessage} />
         );
       })}
       <div ref={messagesEndRef} />
