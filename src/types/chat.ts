@@ -1,4 +1,4 @@
-export type ChatRole = "user" | "assistant";
+export type ChatRole = "user" | "assistant" | "function";
 
 
 export type ChatTextItem = {
@@ -11,12 +11,12 @@ export type ChatDefaultItem = {
   data: string;
 }; 
 
-export type FunctionName = "get_weather";
+export type FunctionName = "get_weather" | "search_properties";
 
-export type ChatFunctionItem = {
+export type ChatFunctionItem<T = string> = {
   type: "function_result";
   name: FunctionName;
-  data: string;
+  data: T;
 };
 
 export type ChatContent = ChatTextItem | ChatDefaultItem | ChatFunctionItem;
@@ -27,4 +27,5 @@ export type ChatItem = {
   content: string;
   createdAt: string;
   updatedAt: string;
+  function_name?: FunctionName;
 };

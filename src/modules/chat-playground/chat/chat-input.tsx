@@ -4,8 +4,9 @@ import { Loader2, Send } from 'lucide-react';
 import { useState } from 'react';
 import { useChatStreaming } from '@/hooks/api-hooks/use-chat';
 import { useQueryClient } from '@tanstack/react-query';
-import { type ChatItem } from '@/types/chat';
+import { type ChatContent, type ChatItem, type FunctionName } from '@/types/chat';
 import { toast } from 'sonner';
+import { saveParsedJson } from '@/lib/utils';
 
 function ChatInput() {
   const [message, setMessage] = useState<string>('');
@@ -62,7 +63,9 @@ function ChatInput() {
           queryClient.setQueryData<ChatItem[]>(['chatHistory'], (oldData = []) => {
             return oldData.map(item => {
               if (item.id === aiMessage.id) {
-                return { ...item, content: fullResponse };
+                const parsed = saveParsedJson<ChatContent>(fullResponse, { type: 'default', data: '' });
+                // @ts-ignore
+                return { ...item, role: parsed.type === 'function_result' ? 'function' : 'assistant', function_name: parsed?.name as unknown as FunctionName || undefined, content: parsed.data };
               }
               return item;
             });

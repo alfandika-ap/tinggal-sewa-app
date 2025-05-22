@@ -102,7 +102,8 @@ export const useChatStreaming = () => {
                     }
                   } else if (parsed.type === 'function_result') {
                     // bisa tampilkan hasil function call kalau kamu mau
-                    console.log("Function result:", parsed.data);
+                    onChunk(`${JSON.stringify(parsed)}`);
+                    fullResponse = JSON.stringify(parsed);
                   } else if (parsed.type === 'done') {
                     onDone(fullResponse);
                     return;
@@ -152,6 +153,7 @@ export const useResetChatHistory = () => {
     mutationFn: resetChatHistory,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["chatHistory"] });
+      queryClient.invalidateQueries({ queryKey: ["properties", "results"] });
     },
   });
 

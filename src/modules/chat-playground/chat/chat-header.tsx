@@ -2,15 +2,18 @@ import { TinggalSewaMascot } from "@/components/tinggal-sewa-mascot";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useResetChatHistory } from "@/hooks/api-hooks/use-chat";
+import useChatSearchResultStore from "@/store/chat-search-result-store";
 import { Trash2 } from "lucide-react";
 import { useCallback } from "react";
 export default function ChatHeader() {
   const { mutate: resetChatHistory, isLoading: isResetting } = useResetChatHistory();
+  const removeChat = useChatSearchResultStore(state => state.removeChat);
 
 
   const handleClearConversation = useCallback(() => {
     resetChatHistory();
-  }, [resetChatHistory]);
+    removeChat()
+  }, [resetChatHistory, removeChat]);
 
   return (
     <div className="border-b p-3 px-4 flex items-center justify-between bg-gradient-to-r from-primary/5 to-transparent">

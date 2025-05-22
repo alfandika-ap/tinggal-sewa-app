@@ -7,10 +7,9 @@ export function cn(...inputs: ClassValue[]) {
 
 export function saveParsedJson<T>(json: string, defaultValue: T) {
   try {
-    const parsed = JSON.parse(json);
+    const parsed = JSON.parse(json) as T;
     return parsed;
   } catch (error) {
-    console.error(error);
     return defaultValue;
   }
 }

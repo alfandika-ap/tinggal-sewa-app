@@ -1,29 +1,27 @@
-import { Button } from "@/components/ui/button";
-import FavoriteButton from "@/components/ui/favorite-button";
-import { Image } from "@/components/ui/image";
-import { useFavorites } from "@/hooks/use-favorites";
-import { Heart, Home, Trash2 } from "lucide-react";
-import * as React from "react";
-import { Link } from "react-router-dom";
+import { Button } from '@/components/ui/button';
+import FavoriteButton from '@/components/ui/favorite-button';
+import { Image } from '@/components/ui/image';
+import { useFavorites } from '@/hooks/use-favorites';
+import { Heart, Home, Trash2 } from 'lucide-react';
+import * as React from 'react';
+import { Link } from 'react-router-dom';
 
 // Import the properties data
-import { properties } from "@/data/properties";
+import { properties } from '@/data/properties';
 
 export default function FavoritesPage() {
   const { favoriteIds, removeFavorite } = useFavorites();
 
   // Filter properties to only show favorites
   const favoriteProperties = React.useMemo(() => {
-    return properties.filter((property) => favoriteIds.includes(property.id));
+    return properties.filter(property => favoriteIds.includes(property.id));
   }, [favoriteIds]);
 
   return (
     <div className="">
       <div className="px-4 py-2 border-b">
         <h1 className="text-md font-bold tracking-tight">Properti Favorit</h1>
-        <p className="text-muted-foreground text-sm">
-          Kelola properti favorit Anda.
-        </p>
+        <p className="text-muted-foreground text-sm">Kelola properti favorit Anda.</p>
       </div>
       <div className="px-4 py-4">
         {favoriteProperties.length === 0 ? (
@@ -31,8 +29,8 @@ export default function FavoritesPage() {
             <Heart className="h-16 w-16 text-muted-foreground mb-4" />
             <h2 className="text-xl font-semibold mb-2">Belum Ada Favorit</h2>
             <p className="text-muted-foreground max-w-md">
-              Anda belum menyimpan properti favorit. Jelajahi properti dan klik
-              ikon hati untuk menambahkan ke favorit.
+              Anda belum menyimpan properti favorit. Jelajahi properti dan klik ikon hati untuk
+              menambahkan ke favorit.
             </p>
             <Button asChild className="mt-4">
               <Link to="/" className="flex items-center gap-2">
@@ -42,8 +40,8 @@ export default function FavoritesPage() {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {favoriteProperties.map((property) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {favoriteProperties.map(property => (
               <div
                 key={property.id}
                 className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow"
@@ -63,20 +61,13 @@ export default function FavoritesPage() {
 
                 <div className="p-4">
                   <h2 className="font-medium text-lg mb-1">{property.name}</h2>
-                  <div className="text-sm text-muted-foreground mb-2">
-                    {property.location}
-                  </div>
-                  <div className="font-semibold text-primary mb-2">
-                    {property.price}
-                  </div>
+                  <div className="text-sm text-muted-foreground mb-2">{property.location}</div>
+                  <div className="font-semibold text-primary mb-2">{property.price}</div>
                   <div className="text-sm mb-3">{property.distance}</div>
 
                   <div className="flex flex-wrap gap-2 mb-3">
                     {property.facilities.map((facility, index) => (
-                      <span
-                        key={index}
-                        className="bg-muted text-xs px-2 py-1 rounded"
-                      >
+                      <span key={index} className="bg-muted text-xs px-2 py-1 rounded">
                         {facility}
                       </span>
                     ))}

@@ -3,13 +3,26 @@ import { useChatHistory } from '@/hooks/api-hooks/use-chat';
 import { MessageCircle } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import ChatBubble from './chat-bubble';
+import useChatSearchResultStore from '@/store/chat-search-result-store';
 
 export default function ChatList() {
   const { data: messages, isLoading } = useChatHistory();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const setChat = useChatSearchResultStore(state => state.setChat);
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      const findFunctionItem = messages.filter(message => message.role === 'function' && message.function_name === 'search_properties').at(-1);
+      if (findFunctionItem) {
+        setChat(findFunctionItem);
+      }
+    }
+  }, [messages]);
+
+  
 
   if (isLoading) {
     return (
