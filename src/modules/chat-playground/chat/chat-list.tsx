@@ -4,6 +4,7 @@ import { MessageCircle } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import ChatBubble from './chat-bubble';
 import useChatSearchResultStore from '@/store/chat-search-result-store';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ChatList() {
   const { data: messages, isLoading } = useChatHistory();
@@ -21,8 +22,6 @@ export default function ChatList() {
       }
     }
   }, [messages]);
-
-  
 
   if (isLoading) {
     return (
@@ -62,16 +61,26 @@ export default function ChatList() {
 
   return (
     <div className="space-y-4">
-      {messages.map((message, index) => {
-        const isLastBotMessage =
-          message.role === 'assistant' &&
-          message.id.includes('temp-ai-') &&
-          index === messages.length - 1;
+      <AnimatePresence mode="popLayout" initial={false}>
+        {messages.map((message, index) => {
+          const isLastBotMessage =
+            message.role === 'assistant' &&
+            message.id.includes('temp-ai-') &&
+            index === messages.length - 1;
 
-        return (
-          <ChatBubble key={message.id} chat={message} isLast={isLastBotMessage} />
-        );
-      })}
+          return (
+            <motion.div
+              key={message.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ChatBubble chat={message} isLast={isLastBotMessage} />
+            </motion.div>
+          );
+        })}
+      </AnimatePresence>
       <div ref={messagesEndRef} />
     </div>
   );

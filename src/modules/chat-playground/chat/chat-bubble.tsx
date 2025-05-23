@@ -3,14 +3,17 @@ import type { ChatContent, ChatItem } from '@/types/chat';
 import ChatText from './chat-item/chat-text';
 import { chatItemMap } from './chat-item/chat-item-map';
 import { useMemo } from 'react';
+import dayjs from 'dayjs';
 
 function ChatBubble({ chat, isLast }: { chat: ChatItem; isLast?: boolean }) {
-
   const chatContent = useMemo(() => {
     if (chat.content.includes('delta: ')) {
       const merged = {
-        type: "text",
-        data: chat.content.split('delta: ').map(item => saveParsedJson<ChatContent>(item, { type: 'default', data: '' }).data).join("")
+        type: 'text',
+        data: chat.content
+          .split('delta: ')
+          .map(item => saveParsedJson<ChatContent>(item, { type: 'default', data: '' }).data)
+          .join(''),
       };
       return merged as ChatContent;
     }
@@ -21,14 +24,15 @@ function ChatBubble({ chat, isLast }: { chat: ChatItem; isLast?: boolean }) {
     if (chatContent.type in chatItemMap) {
       return chatItemMap[chatContent.type as keyof typeof chatItemMap];
     }
-    return chatItemMap["default"];
+    return chatItemMap['default'];
   }, [chatContent]);
 
+  const sendTime = useMemo(() => dayjs(chat.createdAt).format('HH:mm'), [chat]);
 
   return (
     <div
       className={cn(
-        'flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm',
+        'flex w-max max-w-[75%] flex-col gap-1 rounded-lg px-3 py-2 text-sm',
         chat.role === 'user' ? 'ml-auto bg-primary text-primary-foreground' : 'bg-muted',
         chat.role === 'assistant' &&
           chat.id.includes('temp-ai-') &&
@@ -48,6 +52,14 @@ function ChatBubble({ chat, isLast }: { chat: ChatItem; isLast?: boolean }) {
           ) : (
             <ChatItemComponent chat={chatContent} />
           )}
+          <div
+            className={cn(
+              'text-xs',
+              chat.role === 'user' ? 'text-white/60' : 'text-muted-foreground'
+            )}
+          >
+            {sendTime}
+          </div>
         </>
       ) : (
         isLast && (
