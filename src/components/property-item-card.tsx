@@ -6,7 +6,7 @@ function PropertyItemCard({ property }: { property: PropertyItem }) {
   return (
     <div className="flex flex-col gap-3 border-b p-4 text-sm leading-tight last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground relative cursor-pointer">
       <div className="absolute top-6 right-6 z-10">
-        <FavoriteButton propertyId={property.url} />
+        <FavoriteButton propertyId={property.url} property={property} />
       </div>
       <div className="w-full h-40">
         <Image

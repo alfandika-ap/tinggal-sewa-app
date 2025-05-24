@@ -5,6 +5,7 @@ import DashboardLayout from "@/layouts/dashboard-layout";
 import { createBrowserRouter } from "react-router-dom";
 import Dashboard from "./dashboard";
 import FavoritesPage from "./favorites";
+import BookmarkDetailPage from "./bookmark-detail";
 import LoginPage from "./login";
 import NotFound from "./not-found";
 import ProfileSettingPage from "./profile-setting";
@@ -53,6 +54,10 @@ const router = createBrowserRouter([
           {
             path: "favorites",
             element: <FavoritesPage />
+          },
+          {
+            path: "bookmark/:id",
+            element: <BookmarkDetailPage />
           }
         ]
       }

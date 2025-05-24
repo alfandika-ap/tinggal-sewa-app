@@ -1,8 +1,8 @@
-import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { type ClassValue, clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 export function saveParsedJson<T>(json: string, defaultValue: T) {
@@ -12,4 +12,8 @@ export function saveParsedJson<T>(json: string, defaultValue: T) {
   } catch (error) {
     return defaultValue;
   }
+}
+
+export function capitalizeWords(str: string) {
+  return str.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
 }
