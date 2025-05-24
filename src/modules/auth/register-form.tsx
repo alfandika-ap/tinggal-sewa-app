@@ -1,18 +1,18 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import { Link, useNavigate } from "react-router-dom"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { toast } from "sonner"
-import { Loader2 } from "lucide-react"
+import * as React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
-import { cn } from "@/lib/utils"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { useRegister } from "@/hooks/api-hooks/use-auth"
-import { Textarea } from "@/components/ui/textarea"
+import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { useRegister } from '@/hooks/api-hooks/use-auth';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Form,
   FormControl,
@@ -20,83 +20,83 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
+} from '@/components/ui/form';
 
 const registerFormSchema = z.object({
-  fullname: z.string().min(3, "Nama lengkap minimal 3 karakter"),
-  username: z.string().min(3, "Username minimal 3 karakter"),
-  email: z.string().email("Email tidak valid"),
-  password: z.string().min(6, "Password minimal 6 karakter"),
-  phone: z.string().min(10, "Nomor telepon tidak valid"),
-  address: z.string().min(5, "Alamat minimal 5 karakter"),
-})
+  fullname: z.string().min(3, 'Nama lengkap minimal 3 karakter'),
+  username: z.string().min(6, 'Username minimal 6 karakter'),
+  email: z.string().email('Email tidak valid'),
+  password: z.string().min(6, 'Password minimal 6 karakter'),
+  phone: z.string().min(10, 'Nomor telepon tidak valid'),
+  address: z.string().min(5, 'Alamat minimal 5 karakter'),
+});
 
-type RegisterFormValues = z.infer<typeof registerFormSchema>
+type RegisterFormValues = z.infer<typeof registerFormSchema>;
 
 interface RegisterFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function RegisterForm({ className, ...props }: RegisterFormProps) {
-  const navigate = useNavigate()
-  const { mutate, isLoading } = useRegister()
-  
+  const navigate = useNavigate();
+  const { mutate, isLoading } = useRegister();
+
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
-      fullname: "",
-      username: "",
-      email: "",
-      password: "",
-      phone: "",
-      address: "",
+      fullname: '',
+      username: '',
+      email: '',
+      password: '',
+      phone: '',
+      address: '',
     },
-  })
+  });
 
   function onSubmit(data: RegisterFormValues) {
-    toast.dismiss()
-    
+    toast.dismiss();
+
     mutate(data, {
-      onSuccess: (response) => {
-        if (response.token) {
-          toast.success("Akun berhasil dibuat")
-          navigate("/dashboard")
+      onSuccess: response => {
+        if (response) {
+          toast.success('Akun berhasil dibuat');
+          navigate('/');
         } else {
-          toast.error("Gagal membuat akun, silakan coba lagi")
+          toast.error('Gagal membuat akun, silakan coba lagi');
         }
       },
       onError: (error: any) => {
-        console.error("Registration error:", error)
-        const errorData = error?.response?.data
-        
+        console.error('Registration error:', error);
+        const errorData = error?.response?.data;
+
         if (errorData && typeof errorData === 'object') {
-          const hasValidationErrors = Object.keys(errorData).some(key => 
-            Array.isArray(errorData[key]) && errorData[key].length > 0
-          )
-          
+          const hasValidationErrors = Object.keys(errorData).some(
+            key => Array.isArray(errorData[key]) && errorData[key].length > 0
+          );
+
           if (hasValidationErrors) {
             Object.entries(errorData).forEach(([field, messages]) => {
               if (Array.isArray(messages) && messages.length > 0) {
-                form.setError(field as any, { 
-                  type: 'server', 
-                  message: messages[0] as string 
-                })
+                form.setError(field as any, {
+                  type: 'server',
+                  message: messages[0] as string,
+                });
               }
-            })
-            
-            toast.error("Pendaftaran gagal, periksa form Anda")
+            });
+
+            toast.error('Pendaftaran gagal, periksa form Anda');
           } else {
-            const errorMessage = errorData?.message || errorData?.error || "Gagal membuat akun"
-            toast.error(errorMessage)
+            const errorMessage = errorData?.message || errorData?.error || 'Gagal membuat akun';
+            toast.error(errorMessage);
           }
         } else {
-          const errorMessage = error?.message || "Terjadi kesalahan saat mendaftar"
-          toast.error(errorMessage)
+          const errorMessage = error?.message || 'Terjadi kesalahan saat mendaftar';
+          toast.error(errorMessage);
         }
-      }
-    })
+      },
+    });
   }
 
   return (
-    <div className={cn("grid gap-6", className)} {...props}>
+    <div className={cn('grid gap-6', className)} {...props}>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -201,11 +201,7 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
               <FormItem>
                 <FormLabel>Alamat</FormLabel>
                 <FormControl>
-                  <Textarea
-                    placeholder="Masukkan alamat Anda"
-                    disabled={isLoading}
-                    {...field}
-                  />
+                  <Textarea placeholder="Masukkan alamat Anda" disabled={isLoading} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -218,7 +214,7 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
                 Membuat Akun...
               </>
             ) : (
-              "Buat Akun"
+              'Buat Akun'
             )}
           </Button>
         </form>
@@ -228,17 +224,15 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
           <span className="w-full border-t" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">
-            Atau
-          </span>
+          <span className="bg-background px-2 text-muted-foreground">Atau</span>
         </div>
       </div>
       <div className="text-center text-sm">
-        Sudah punya akun?{" "}
+        Sudah punya akun?{' '}
         <Link to="/" className="underline underline-offset-4 hover:text-primary">
           Masuk Sekarang
         </Link>
       </div>
     </div>
-  )
-} 
+  );
+}

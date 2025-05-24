@@ -14,6 +14,8 @@ export interface LoginResponse {
   customer: Customer;
 }
 
+export type RegisterResponse = Customer;
+
 export interface RegisterRequest {
   username: string;
   email: string;
@@ -21,4 +23,4 @@ export interface RegisterRequest {
   fullname: string;
   phone: string;
   address: string;
-} 
+}
