@@ -1,4 +1,4 @@
-import { Card, CardContent } from '@/components/ui/card';
+//import { Card, CardContent } from '@/components/ui/card';
 import { useSearchProperties } from '@/hooks/api-hooks/use-property';
 import type { ChatContent, ChatFunctionItem } from '@/types/chat';
 import type { FunctionSearchPropertiesData } from '@/types/function-type';
@@ -40,7 +40,9 @@ export default function SearchPropertiesFunction({ chat }: { chat: ChatContent }
 
   return (
     <p className="mb-3 text-sm">
-      {properties?.summary ? properties.summary : `Menampilkan ${data.results.length} properti untuk pencarian "${properties.query_texts[0]}"`}
+      {properties?.summary
+        ? properties.summary
+        : `Menampilkan ${data.results.length} properti untuk pencarian "${properties.query_texts[0]}"`}
     </p>
   );
 }

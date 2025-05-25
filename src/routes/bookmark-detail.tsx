@@ -1,11 +1,11 @@
 import { Button } from '@/components/ui/button';
-import FavoriteButton from '@/components/ui/favorite-button';
+// import FavoriteButton from '@/components/ui/favorite-button';
 import { Image } from '@/components/ui/image';
 import { useBookmark, useDeleteBookmark } from '@/hooks/api-hooks/use-bookmark';
 import { capitalizeWords } from '@/lib/utils';
 import {
-  Heart,
-  Home,
+  //  Heart,
+  //  Home,
   Loader2,
   Trash2,
   ArrowLeft,
