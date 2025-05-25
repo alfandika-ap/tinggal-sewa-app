@@ -1,6 +1,6 @@
-import { ProfileForm } from "@/modules/profile/profile-form"
-import { Separator } from "@/components/ui/separator"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ProfileForm } from '@/modules/profile/profile-form';
+// import { Separator } from "@/components/ui/separator"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function ProfileSettingPage() {
   return (
@@ -11,7 +11,7 @@ export default function ProfileSettingPage() {
           Kelola informasi profil dan preferensi akun Anda.
         </p>
       </div>
-      
+
       <div className="grid gap-6">
         <Card>
           <CardHeader>
@@ -26,5 +26,5 @@ export default function ProfileSettingPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
