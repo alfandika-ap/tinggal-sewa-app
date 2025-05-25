@@ -25,20 +25,22 @@ export default function ItemResults() {
       name: 'search_properties',
       data: {
         query_texts: [],
-        where: {}
-      }
+        where: {},
+      },
     });
-    return content?.data.query_texts.length > 0 ? content.data : undefined;
+    return Array.isArray(content?.data?.query_texts) && content.data.query_texts.length > 0
+      ? content.data
+      : undefined;
   }, [chat]);
   const { data: propertiesResponse, isLoading } = useSearchProperties({
     data: dataResponse,
     enabled: !!dataResponse,
-    keys: ["properties", "results", dataResponse]
+    keys: ['properties', 'results', dataResponse],
   });
   const [searchTerm, setSearchTerm] = React.useState('');
   const [isSearching, setIsSearching] = React.useState(false);
   const [showItems, setShowItems] = React.useState(false);
-  const properties = propertiesResponse?.results || [];
+  const properties = propertiesResponse?.results ?? [];
 
   React.useEffect(() => {
     if (!isLoading && properties.length > 0) {
@@ -56,10 +58,10 @@ export default function ItemResults() {
 
     return properties.filter(
       property =>
-        property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        property.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        property.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        property.facilities.toLowerCase().includes(searchTerm.toLowerCase())
+        property?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        property?.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        property?.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        property?.facilities?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [searchTerm, properties]);
 
@@ -131,17 +133,17 @@ export default function ItemResults() {
           <SidebarGroup className="px-0">
             <SidebarGroupContent>
               <div className="@container">
-                <div 
+                <div
                   className={`grid grid-cols-1 @sm:grid-cols-2 @lg:grid-cols-3 transition-all duration-500 ${
                     showItems ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                   }`}
                 >
                   {filteredProperties.map((property, i) => (
-                    <div 
-                      key={i} 
+                    <div
+                      key={i}
                       className="opacity-0"
-                      style={{ 
-                        animation: `fadeSlideIn 500ms ${i * 50}ms forwards` 
+                      style={{
+                        animation: `fadeSlideIn 500ms ${i * 50}ms forwards`,
                       }}
                     >
                       <PropertyItemCard property={property} />
